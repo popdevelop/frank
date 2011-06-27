@@ -18,6 +18,11 @@ module Frank
             new_ext = ext_from_handler(ext)
             name    = File.basename(path, ext)
 
+            # No suitable handler found
+            if not new_ext.is_a? String
+              next
+            end
+
             if Frank.production? && "#{name}.#{new_ext}" != 'index.html' && new_ext == 'html'
               new_file = File.join(Frank.export.path, path.sub(/(\/?[\w-]+)\.[\w-]+$/, "\\1/index.#{new_ext}"))
             else
