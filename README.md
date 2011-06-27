@@ -33,7 +33,9 @@ When you're done working:
 
     $ frank export <export_dir>
 
-to compile templates and copy them--along with static your assets--into `<export_dir>`. Or,
+to compile templates and copy them--along with static your assets--into `<export_dir>` (or to `export/` if you don't specify an `<export_dir>`).
+
+Or,
 
     $ frank export --production <export_dir>
 
@@ -219,6 +221,18 @@ Installation
 ------------
 
     $ gem install frank
+
+
+Contributors (in no particular order)
+-------------------------------------
+
+* railsjedi (Jacques Crocker)
+* asymmetric (Lorenzo Manacorda)
+* timmywil (timmywil)
+* sce (Sten Christoffer Eliesen)
+* btelles (Bernie Telles)
+* mitchellbryson (Mitchell Bryson)
+* nwah (Noah Burney)
 
 
 [0]: http://www.sinatrarb.com/
