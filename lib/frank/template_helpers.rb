@@ -11,6 +11,35 @@ module Frank
       render(File.join(pieces.join('/'), partial), partial = true, locals)
     end
 
+    def read_binary_file(path)
+      File.open(path, 'rb') {|f| f.read }
+    end
+
+    def javascript_include_tag(pack)
+      '<script type="text/javascript" src="' + pack + '"></script>'
+    end
+
+    def include_templates(base)
+      return if Frank.assets[:js]["templates"] == nil
+      compiled = Frank.assets[:js]["templates"][:paths].flatten.map{ |path|
+        if !File.directory? path
+          contents  = read_binary_file(path)
+          contents  = contents.gsub(/\r?\n/, "\\n").gsub("'", '\\\\\'')
+          name = path.sub(File.join(Frank.dynamic_folder, base) + '/', '').sub('.'+base,'')
+          "window.JST['#{name}'] = _.template('#{contents}')"
+        end
+      }
+      ['<script type="text/javascript">', 'window.JST = window.JST || {};', compiled, '</script>'].flatten.join("\n")
+    end
+
+    def include_javascripts(*packages)
+      packages.map{ |pack|
+        Frank.assets[:js][pack.to_s][:urls] || {}
+      }.flatten.map{ |pack|
+        javascript_include_tag pack
+      }.join("\n")
+    end
+
     def lorem
       Frank::Lorem.new
     end

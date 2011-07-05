@@ -12,6 +12,8 @@ module Frank
     attr_accessor :static_folder
     attr_accessor :dynamic_folder
     attr_accessor :layouts_folder
+    attr_accessor :assets_file
+    attr_accessor :assets
     attr_accessor :export
     attr_accessor :publish
     attr_accessor :sass_options
@@ -48,6 +50,11 @@ module Frank
       @static_folder = "static"
       @dynamic_folder = "dynamic"
       @layouts_folder = "layouts"
+      @assets_file = "config/assets.yml"
+      @assets = {
+        :css => {},
+        :js => {}
+      };
 
       # setup 3rd party configurations
       @sass_options = {}

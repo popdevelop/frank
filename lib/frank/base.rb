@@ -219,10 +219,34 @@ module Frank
     end
   end
 
+  def self.glob_files(glob)
+    Dir[glob].sort
+  end
+
+  def self.create_packages(config)
+    packages = {}
+    return packages if !config
+    config.each do |name, globs|
+      globs                  ||= []
+      packages[name]         = {}
+      paths                  = globs.flatten.uniq.map {|glob| glob_files(glob) }.flatten.uniq
+      packages[name][:paths] = paths
+      packages[name][:urls] = paths.map {|path| path.sub(Frank.static_folder + '/', '') }
+    end
+    packages
+  end
+
   # Bootstrap will set up Frank up at a root path, and read in the setup.rb
   def self.bootstrap(new_root = nil)
     Frank.reset
     Frank.root = new_root if new_root
+
+    file = File.join(Frank.root, Frank.assets_file);
+    if file && File.exists?(file):
+        data = YAML.load(File.open(file))
+      Frank.assets[:css] = create_packages(data["stylesheets"]) if data["stylesheets"]
+      Frank.assets[:js]  = create_packages(data["javascripts"]) if data["javascripts"]
+    end
 
     if %w[publish p].include? ARGV.first
       begin
