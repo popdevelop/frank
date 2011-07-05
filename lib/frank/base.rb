@@ -267,7 +267,6 @@ module Frank
         # Please update this if it is or remove this message if it can stay the way it is.
         config.project_path = Frank.root
         config.sass_dir = File.join('dynamic', 'stylesheets')
-        config.environment = 'production' if Frank.production?
       end
 
       # sass_engine_options returns a hash, you can merge it with other options.
