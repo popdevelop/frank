@@ -1,3 +1,11 @@
+#require 'uglifier'
+
+class String
+  def starts_with?(characters)
+      self.match(/^#{characters}/) ? true : false
+  end
+end
+
 module Frank
   class Compile < Frank::Base
 
@@ -42,29 +50,51 @@ module Frank
         FileUtils.makedirs path.split('/').reverse[1..-1].reverse.join('/')
       end
 
+      def read_binary_file(path)
+        File.open(path, 'rb') {|f| f.read }
+      end
+
       # copies over static content
       def copy_static
         puts " - \033[32mCopying\033[0m static content" unless Frank.silent_export?
         static_folder = File.join(Frank.root, Frank.static_folder)
         FileUtils.cp_r(File.join(static_folder, '/.'), Frank.export.path)
+        files = []
+        for i in Dir[File.join(static_folder, '**/*.js')]
+          files << i.sub(static_folder, '').sub(File::SEPARATOR, '')
+        end
+        Frank.assets[:js].map { |name, group|
+          f = File.open(File.join(Frank.export.path, name + '.js'), 'w')
+          group[:paths].each { |file|
+            file = file.sub(Frank.static_folder, '').sub(File::SEPARATOR, '')
+            if files.include? file
+              source = File.join(Frank.export.path, file)
+              contents = read_binary_file(source)
+              #contents = Uglifier.new.compile(contents)
+              f.write(contents)
+              File.unlink(source)
+            end
+          }
+          f.close()
+        }
       end
-      
+
       # ask the user if they want to overwrite the folder
       # get the input and return it
       def ask_nicely
         print "\033[31mA folder named `#{Frank.export.path}' already exists, overwrite it?\033[0m [y/n] "
         STDIN.gets.chomp.downcase
       end
-      
+
       # verify that the user wants to overwrite the folder
       # remove it if so, exit if not
       def verify_overwriting
         overwrite = ask_nicely
-        
+
         while overwrite.empty?
           overwrite = ask_nicely
         end
-        
+
         overwrite == 'y' ? FileUtils.rm_rf(Frank.export.path) : exit
       end
 

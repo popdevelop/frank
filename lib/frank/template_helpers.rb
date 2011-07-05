@@ -34,7 +34,7 @@ module Frank
 
     def include_javascripts(*packages)
       packages.map{ |pack|
-        Frank.assets[:js][pack.to_s][:urls] || {}
+        Frank.production? ? pack.to_s + '.js' : Frank.assets[:js][pack.to_s][:urls] || {}
       }.flatten.map{ |pack|
         javascript_include_tag pack
       }.join("\n")
