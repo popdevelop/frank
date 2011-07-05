@@ -16,7 +16,11 @@ module Frank
     end
 
     def javascript_include_tag(pack)
-      '<script type="text/javascript" src="' + pack + '"></script>'
+      "<script type=\"text/javascript\" src=\"#{pack}\"></script>"
+    end
+
+    def stylesheet_include_tag(pack)
+      "<link href=\"#{pack}\" rel=\"stylesheet\" type=\"text/css\" />"
     end
 
     def include_templates(base)
@@ -25,18 +29,39 @@ module Frank
         if !File.directory? path
           contents  = read_binary_file(path)
           contents  = contents.gsub(/\r?\n/, "\\n").gsub("'", '\\\\\'')
-          name = path.sub(File.join(Frank.dynamic_folder, base) + '/', '').sub('.'+base,'')
-          "window.JST['#{name}'] = _.template('#{contents}')"
+          name = path.sub(File.join(Frank.dynamic_folder, base) + File::SEPARATOR, '').sub(Frank.assets[:template_extension],'')
+          "#{Frank.assets[:template_namespace]}['#{name}'] = #{Frank.assets[:template_function]}('#{contents}')"
         end
       }
-      ['<script type="text/javascript">', 'window.JST = window.JST || {};', compiled, '</script>'].flatten.join("\n")
+      ['<script type="text/javascript">',
+       "#{Frank.assets[:template_namespace]} = #{Frank.assets[:template_namespace]} || {};",
+       compiled,
+       '</script>'].flatten.join("\n")
     end
 
     def include_javascripts(*packages)
       packages.map{ |pack|
-        Frank.production? ? pack.to_s + '.js' : Frank.assets[:js][pack.to_s][:urls] || {}
+        if Frank.production?
+          File.join(Frank.assets[:package_path], pack.to_s + '.js')
+        else
+          Frank.assets[:js][pack.to_s][:urls] || {}
+        end
       }.flatten.map{ |pack|
         javascript_include_tag pack
+      }.join("\n")
+    end
+
+    def include_stylesheets(*packages)
+      packages.map{ |pack|
+        if Frank.production?
+          File.join(Frank.assets[:package_path], pack.to_s + '.css')
+        else
+          Frank.assets[:css][pack.to_s][:urls] || {}
+        end
+      }.flatten.map{ |pack|
+        # Replace extension with .css since frank will generate correct files
+        file = pack.chomp(File.extname(pack)) + '.css'
+        stylesheet_include_tag file
       }.join("\n")
     end
 

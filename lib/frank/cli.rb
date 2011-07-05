@@ -66,6 +66,7 @@ module Frank
 
           opts.on('--production', 'Production ready export (frank export) i.e. ([FOLDER]/index.html)') do |handler|
             @options[:production] = true
+            Frank.production!
           end
 
           opts.on('-v', '--version', 'Show the frank version and exit') do
@@ -124,7 +125,6 @@ module Frank
         when 'export', 'e', 'out', 'compile'
           # compile the project
           Frank.exporting!
-          Frank.production! if @options[:production]
           Frank.export.path = ARGV[1] if ARGV[1]
           Frank::Compile.export!
         when 'publish', 'p'

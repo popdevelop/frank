@@ -53,7 +53,12 @@ module Frank
       @assets_file = "config/assets.yml"
       @assets = {
         :css => {},
-        :js => {}
+        :js => {},
+        :config => "config/assets.yml",
+        :package_path => "assets",
+        :template_extension => ".jst",
+        :template_function => "_.template",
+        :template_namespace => "window.JST"
       };
 
       # setup 3rd party configurations

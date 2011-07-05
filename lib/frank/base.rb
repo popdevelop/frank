@@ -219,19 +219,18 @@ module Frank
     end
   end
 
-  def self.glob_files(glob)
-    Dir[glob].sort
-  end
-
   def self.create_packages(config)
     packages = {}
     return packages if !config
     config.each do |name, globs|
       globs                  ||= []
       packages[name]         = {}
-      paths                  = globs.flatten.uniq.map {|glob| glob_files(glob) }.flatten.uniq
+      paths                  = globs.flatten.uniq.map {|glob| Dir[glob].sort }.flatten.uniq
       packages[name][:paths] = paths
-      packages[name][:urls] = paths.map {|path| path.sub(Frank.static_folder + '/', '') }
+      packages[name][:urls] = paths.map {|path|
+        path.sub!(Frank.static_folder + File::SEPARATOR, '')
+        path.sub(Frank.dynamic_folder + File::SEPARATOR, '')
+      }
     end
     packages
   end
@@ -268,6 +267,7 @@ module Frank
         # Please update this if it is or remove this message if it can stay the way it is.
         config.project_path = Frank.root
         config.sass_dir = File.join('dynamic', 'stylesheets')
+        config.environment = 'production' if Frank.production?
       end
 
       # sass_engine_options returns a hash, you can merge it with other options.

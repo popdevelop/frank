@@ -1,4 +1,4 @@
-#require 'uglifier'
+require 'yuicompressor'
 
 class String
   def starts_with?(characters)
@@ -59,19 +59,51 @@ module Frank
         puts " - \033[32mCopying\033[0m static content" unless Frank.silent_export?
         static_folder = File.join(Frank.root, Frank.static_folder)
         FileUtils.cp_r(File.join(static_folder, '/.'), Frank.export.path)
-        files = []
-        for i in Dir[File.join(static_folder, '**/*.js')]
-          files << i.sub(static_folder, '').sub(File::SEPARATOR, '')
-        end
+      end
+
+      def package_javascripts
+        return if Frank.assets == nil
+
+        output_dir = File.join(Frank.export.path, Frank.assets[:package_path])
+        Dir.mkdir(output_dir) unless File.exists? output_dir
         Frank.assets[:js].map { |name, group|
-          f = File.open(File.join(Frank.export.path, name + '.js'), 'w')
+          new_file = File.join(Frank.export.path, Frank.assets[:package_path], name + '.js')
+          puts " - \033[32mCreating\033[0m javascript #{new_file}" unless Frank.silent_export?
+          f = File.new(new_file, 'wb')
           group[:paths].each { |file|
-            file = file.sub(Frank.static_folder, '').sub(File::SEPARATOR, '')
-            if files.include? file
-              source = File.join(Frank.export.path, file)
+            file = file.sub(Frank.static_folder, '')
+            source = File.join(Frank.export.path, file)
+            if File.exists? source
+              puts " - - \033[32mCompiling\033[0m javascript #{source}" unless Frank.silent_export?
               contents = read_binary_file(source)
-              #contents = Uglifier.new.compile(contents)
-              f.write(contents)
+              contents = YUICompressor.compress_js(contents)
+              f.write(contents + "\n")
+              File.unlink(source)
+            end
+          }
+          f.close()
+        }
+      end
+
+      def package_stylesheets
+        return if Frank.assets == nil
+
+        output_dir = File.join(Frank.export.path, Frank.assets[:package_path])
+        Dir.mkdir(output_dir) unless File.exists? output_dir
+        Frank.assets[:css].map { |name, group|
+          new_file = File.join(Frank.export.path, Frank.assets[:package_path], name + '.css')
+          puts " - \033[32mCreating\033[0m stylesheet '#{new_file}'" unless Frank.silent_export?
+          f = File.new(new_file, 'wb')
+          group[:paths].each { |file|
+            file.sub!(Frank.static_folder, '')
+            # Do a special trick for dynamic files
+            file.sub!(Frank.dynamic_folder, '')
+            file = file.chomp(File.extname(file)) + '.css'
+            source = File.join(Frank.export.path, file)
+            if File.exists? source
+              puts " - - \033[32mCompiling\033[0m stylesheet '#{source}'" unless Frank.silent_export?
+              contents = read_binary_file(source)
+              f.write(contents + "\n")
               File.unlink(source)
             end
           }
@@ -111,6 +143,11 @@ module Frank
 
         compile_templates
         copy_static
+        if Frank.production?
+          package_stylesheets
+          package_javascripts
+        end
+
 
         puts "\n \033[32mCongratulations, project dumped to '#{Frank.export.path}' successfully!\033[0m" unless Frank.silent_export?
       end
