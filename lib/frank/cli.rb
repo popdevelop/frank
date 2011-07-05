@@ -68,6 +68,10 @@ module Frank
             @options[:production] = true
           end
 
+          opts.on('--compress', 'Compress assets') do |handler|
+            @options[:compress] = true
+          end
+
           opts.on('-v', '--version', 'Show the frank version and exit') do
             puts "Frank v#{Frank::VERSION}"
             exit
@@ -125,6 +129,7 @@ module Frank
           # compile the project
           Frank.exporting!
           Frank.production!
+          Frank.compress! if @options[:compress]
           Frank.export.path = ARGV[1] if ARGV[1]
           Frank::Compile.export!
         when 'publish', 'p'

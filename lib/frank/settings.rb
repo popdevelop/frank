@@ -60,6 +60,7 @@ module Frank
         :template_function => "_.template",
         :template_namespace => "window.JST"
       };
+      @compress = false
 
       # setup 3rd party configurations
       @sass_options = {}
@@ -110,6 +111,14 @@ module Frank
     def publishing!
       @exporting  = true
       @production = true
+    end
+
+    def compress!
+      @compress = true
+    end
+
+    def compress?
+      @compress
     end
 
   end
