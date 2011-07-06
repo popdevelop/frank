@@ -1,4 +1,4 @@
-require 'yuicompressor'
+require 'yui/compressor'
 
 class String
   def starts_with?(characters)
@@ -76,7 +76,7 @@ module Frank
             if File.exists? source
               puts " - - \033[32mCompiling\033[0m javascript #{source}" unless Frank.silent_export?
               contents = read_binary_file(source)
-              contents = YUICompressor.compress_js(contents) if Frank.compress?
+              contents = YUI::JavaScriptCompressor.new.compress(contents) if Frank.compress?
               f.write(contents + "\n")
               File.unlink(source)
             end
@@ -103,7 +103,7 @@ module Frank
             if File.exists? source
               puts " - - \033[32mCompiling\033[0m stylesheet '#{source}'" unless Frank.silent_export?
               contents = read_binary_file(source)
-              contents = YUICompressor.compress_css(contents) if Frank.compress?
+              contents = YUI::CssCompressor.new.compress(contents) if Frank.compress?
               f.write(contents + "\n")
               File.unlink(source)
             end
