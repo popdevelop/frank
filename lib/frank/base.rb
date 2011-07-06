@@ -241,7 +241,7 @@ module Frank
     Frank.root = new_root if new_root
 
     file = File.join(Frank.root, Frank.assets_file);
-    if file && File.exists?(file):
+    if file && File.exists?(file)
         data = YAML.load(File.open(file))
       Frank.assets[:css] = create_packages(data["stylesheets"]) if data["stylesheets"]
       Frank.assets[:js]  = create_packages(data["javascripts"]) if data["javascripts"]
