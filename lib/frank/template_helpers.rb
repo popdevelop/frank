@@ -33,10 +33,9 @@ module Frank
           "#{Frank.assets[:template_namespace]}['#{name}'] = #{Frank.assets[:template_function]}('#{contents}')"
         end
       }
-      ['<script type="text/javascript">',
-       "#{Frank.assets[:template_namespace]} = #{Frank.assets[:template_namespace]} || {};",
-       compiled,
-       '</script>'].flatten.join("\n")
+      compiled = ["#{Frank.assets[:template_namespace]} = #{Frank.assets[:template_namespace]} || {};", compiled].flatten.join("\n")
+      File.open(File.join(Frank.static_folder, 'templates.js'), 'w') { |f| f.write(compiled) }
+      return '<script type="text/javascript" src="templates.js"></script>'
     end
 
     def include_javascripts(*packages)
