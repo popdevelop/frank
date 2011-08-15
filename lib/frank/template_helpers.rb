@@ -46,7 +46,9 @@ module Frank
           Frank.assets[:js][pack.to_s][:urls] || {}
         end
       }.flatten.map{ |pack|
-        javascript_include_tag pack
+        # Replace extension with .js since frank will generate correct files
+        file = pack.chomp(File.extname(pack)) + '.js'
+        javascript_include_tag file
       }.join("\n")
     end
 
