@@ -72,6 +72,9 @@ module Frank
           f = File.new(new_file, 'wb')
           group[:paths].each { |file|
             file = file.sub(Frank.static_folder, '')
+            # Do a special trick for dynamic files
+            file.sub!(Frank.dynamic_folder, '')
+            file = file.chomp(File.extname(file)) + '.js'
             source = File.join(Frank.export.path, file)
             if File.exists? source
               puts " - - \033[32mCompiling\033[0m javascript #{source}" unless Frank.silent_export?
