@@ -266,6 +266,7 @@ module Frank
         # I think maybe this should be one more directory up from the configuration file.
         # Please update this if it is or remove this message if it can stay the way it is.
         config.project_path = Frank.root
+        config.images_path = Frank.static_folder
         config.sass_dir = File.join('dynamic', 'stylesheets')
       end
 
