@@ -1,5 +1,3 @@
-require 'yui/compressor'
-
 class String
   def starts_with?(characters)
       self.match(/^#{characters}/) ? true : false
@@ -147,6 +145,14 @@ module Frank
 
         compile_templates
         copy_static
+        if Frank.compress?
+          begin
+            require 'yui/compressor'
+          rescue
+            puts "You need to install the yui-compressor gem to enable compression"
+          end
+        end
+
         if Frank.production?
           package_stylesheets
           package_javascripts
